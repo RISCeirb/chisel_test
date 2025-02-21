@@ -1,3 +1,13 @@
+# Processor Test Interface 
+
+To Simulate our multicore processor writing in chisel, we will first generate verilog using sbt and after use verilator to generate .vcd files test for each instruction of our processor. We can after visualize the chrogram for debuging if neccessary with gtkwave .
+
+
+
+
+
+
+
 # Cache Coherency Protocols
 
 ## Introduction
