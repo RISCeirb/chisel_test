@@ -9,7 +9,6 @@ To Simulate our multicore processor writing in chisel, we will first generate ve
 Implementation a cache using the MILK protocle (custom one), it as signal for the read, write and the request for the L1I and L1D processor cache.
 
 
-
 # Implémentation du Protocole MSI
 
 Le protocole **MSI (Modified, Shared, Invalid)** est un protocole de cohérence de cache utilisé dans les systèmes multiprocesseurs pour assurer la consistance des données entre les caches.
@@ -43,7 +42,6 @@ Ces signaux confirment la réception des invalidations ou des transferts de donn
 
 # Cache Coherency Protocols
 
-## Introduction
 Cache coherency protocols are essential for maintaining data consistency in multiprocessor systems where multiple caches may hold copies of the same memory location. These protocols help ensure that updates to a shared memory location are correctly reflected across all processors.
 
 ## Types of Cache Coherency Protocols
@@ -69,15 +67,5 @@ Snooping protocols rely on a broadcast mechanism where all caches monitor (or "s
   - **Dragon Protocol**: Uses an update-based mechanism to keep cache copies consistent without invalidation.
   - **Firefly Protocol**: Similar to Dragon but optimized for certain architectures.
 
-## Comparison of Protocols
-| Feature | Directory-Based | Snooping-Based |
-|---------|---------------|--------------|
-| Scalability | High (suitable for large systems) | Low (limited due to bus contention) |
-| Latency | Higher due to directory lookup | Lower for small systems |
-| Traffic | Lower (point-to-point messages) | Higher (broadcast messages) |
-| Complexity | Higher (requires directory management) | Lower (simpler logic) |
-
-## Conclusion
-Choosing the right cache coherency protocol depends on system architecture and scalability requirements. While snooping protocols are efficient for small-scale multiprocessors, directory-based protocols are better suited for larger distributed systems.
 
 
