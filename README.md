@@ -4,6 +4,10 @@ To Simulate our multicore processor writing in chisel, we will first generate ve
 
 
 
+# First step:
+
+Implementation a cache using the MILK protocle (custom one), it as signal for the read, write and the request.
+
 
 
 
