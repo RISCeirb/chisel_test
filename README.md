@@ -55,6 +55,18 @@ In directory-based cache coherency, a centralized directory keeps track of which
 - **Limited Directory Protocol**: Uses a limited number of pointers to track caches that store copies of a block.
 - **Sparse Directory Protocol**: Uses approximations to track shared blocks efficiently while reducing storage overhead.
 
+
+
+| Opération | État MSI   | Nombre de cycles (exemple)         | Commentaire                                      |
+|-----------|------------|------------------------------------|--------------------------------------------------|
+| Read      | Modified   | 1 cycle                            | Hit : accès direct depuis le cache               |
+| Read      | Shared     | 1 cycle                            | Hit : accès direct depuis le cache               |
+| Read      | Invalid    | 7 cycles                           | Miss : latence d'accès mémoire/directory         |
+| Write     | Modified   | 1 cycle                            | Hit : écriture locale sans besoin d'invalidation   |
+| Write     | Shared     | 1 cycles (upgrade cost)            | Hit : nécessite une mise à niveau (invalidation)   |
+| Write     | Invalid    | 8 cycles                           | Miss : latence d'accès mémoire/directory         |
+
+
 ### 2. **Snooping-Based Protocols**
 Snooping protocols rely on a broadcast mechanism where all caches monitor (or "snoop") a shared bus to observe memory transactions. These protocols are more suitable for small to medium-sized multiprocessor systems.
 
@@ -66,6 +78,5 @@ Snooping protocols rely on a broadcast mechanism where all caches monitor (or "s
 - **Write Update (Write Broadcast) Protocols**: Instead of invalidating copies, the new data is broadcast to all caches holding the block.
   - **Dragon Protocol**: Uses an update-based mechanism to keep cache copies consistent without invalidation.
   - **Firefly Protocol**: Similar to Dragon but optimized for certain architectures.
-
 
 
