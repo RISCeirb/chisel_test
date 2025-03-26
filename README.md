@@ -8,37 +8,8 @@ To Simulate our multicore processor writing in chisel, we will first generate ve
 
 Implementation a cache using the MILK protocle (custom one), it as signal for the read, write and the request for the L1I and L1D processor cache.
 
+The cache use two variable to enable ATOMIC Extention and coherency extention based on DIRECTORY COHERENCY.
 
-# Implémentation du Protocole MSI
-
-Le protocole **MSI (Modified, Shared, Invalid)** est un protocole de cohérence de cache utilisé dans les systèmes multiprocesseurs pour assurer la consistance des données entre les caches.
-
-## Signaux Nécessaires
-
-### 1. Signaux de Requête (Envoyés par les caches au bus ou au contrôleur de mémoire)
-Ces signaux indiquent qu'un processeur souhaite effectuer une opération sur un bloc de cache, potentiellement modifiant son état de cohérence.
-
-- **BusRd (Bus Read)** : Requête envoyée lorsqu'un processeur veut lire une donnée dans l'état **Invalid (I)**.
-- **BusRdX (Bus Read Exclusive)** : Requête envoyée lorsqu'un processeur veut écrire sur un bloc, forçant son passage à l'état **Modified (M)**.
-- **BusUpgr (Bus Upgrade)** : Requête envoyée lorsqu'un processeur possède le bloc en état **Shared (S)** mais souhaite le modifier sans recharger les données depuis la mémoire.
-
-### 2. Signaux de Réponse (Envoyés par les autres caches ou la mémoire)
-Ces signaux permettent de répondre aux requêtes ci-dessus et de maintenir la cohérence.
-
-- **Flush** : Envoyé lorsqu'un cache possède une copie modifiée du bloc et doit l'écrire en mémoire.
-- **FlushOpt (Flush Optionnel)** : Envoyé lorsqu'un cache peut fournir directement le bloc sans écriture en mémoire.
-- **SharedResponse** : Indique qu'un autre cache détient déjà une copie du bloc en état **Shared (S)**.
-
-### 3. Signaux d'Invalidation (Envoyés aux caches)
-Ces signaux garantissent que les copies d'un bloc de données sont invalidées lorsque nécessaire.
-
-- **Invalidate (Inv)** : Envoyé aux caches qui possèdent le bloc en **Shared (S)** lorsque qu'un autre processeur demande un accès exclusif.
-
-### 4. Signaux d'Acknowledgment (Pour la Synchronisation)
-Ces signaux confirment la réception des invalidations ou des transferts de données.
-
-- **Ack (Acknowledgment)** : Confirme qu'un cache a bien invalidé ou mis à jour un bloc.
-- **MemoryResponse** : Indique que la mémoire a fourni les données demandées à un processeur.
 
 # Cache Coherency Protocols
 
@@ -82,3 +53,33 @@ Snooping protocols rely on a broadcast mechanism where all caches monitor (or "s
   - **Firefly Protocol**: Similar to Dragon but optimized for certain architectures.
 
 
+# Implémentation du Protocole MSI
+
+Le protocole **MSI (Modified, Shared, Invalid)** est un protocole de cohérence de cache utilisé dans les systèmes multiprocesseurs pour assurer la consistance des données entre les caches.
+
+## Signaux Nécessaires
+
+### 1. Signaux de Requête (Envoyés par les caches au bus ou au contrôleur de mémoire)
+Ces signaux indiquent qu'un processeur souhaite effectuer une opération sur un bloc de cache, potentiellement modifiant son état de cohérence.
+
+- **BusRd (Bus Read)** : Requête envoyée lorsqu'un processeur veut lire une donnée dans l'état **Invalid (I)**.
+- **BusRdX (Bus Read Exclusive)** : Requête envoyée lorsqu'un processeur veut écrire sur un bloc, forçant son passage à l'état **Modified (M)**.
+- **BusUpgr (Bus Upgrade)** : Requête envoyée lorsqu'un processeur possède le bloc en état **Shared (S)** mais souhaite le modifier sans recharger les données depuis la mémoire.
+
+### 2. Signaux de Réponse (Envoyés par les autres caches ou la mémoire)
+Ces signaux permettent de répondre aux requêtes ci-dessus et de maintenir la cohérence.
+
+- **Flush** : Envoyé lorsqu'un cache possède une copie modifiée du bloc et doit l'écrire en mémoire.
+- **FlushOpt (Flush Optionnel)** : Envoyé lorsqu'un cache peut fournir directement le bloc sans écriture en mémoire.
+- **SharedResponse** : Indique qu'un autre cache détient déjà une copie du bloc en état **Shared (S)**.
+
+### 3. Signaux d'Invalidation (Envoyés aux caches)
+Ces signaux garantissent que les copies d'un bloc de données sont invalidées lorsque nécessaire.
+
+- **Invalidate (Inv)** : Envoyé aux caches qui possèdent le bloc en **Shared (S)** lorsque qu'un autre processeur demande un accès exclusif.
+
+### 4. Signaux d'Acknowledgment (Pour la Synchronisation)
+Ces signaux confirment la réception des invalidations ou des transferts de données.
+
+- **Ack (Acknowledgment)** : Confirme qu'un cache a bien invalidé ou mis à jour un bloc.
+- **MemoryResponse** : Indique que la mémoire a fourni les données demandées à un processeur.
