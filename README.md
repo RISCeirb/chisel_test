@@ -56,6 +56,8 @@ In directory-based cache coherency, a centralized directory keeps track of which
 - **Sparse Directory Protocol**: Uses approximations to track shared blocks efficiently while reducing storage overhead.
 
 
+Implementation of Full-map Directory Protocol :
+
 
 | Opération | État MSI   | Nombre de cycles (exemple)         | Commentaire                                      |
 |-----------|------------|------------------------------------|--------------------------------------------------|
