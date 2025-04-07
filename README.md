@@ -53,7 +53,7 @@ Snooping protocols rely on a broadcast mechanism where all caches monitor (or "s
   - **Firefly Protocol**: Similar to Dragon but optimized for certain architectures.
 
 
-# Implémentation du Protocole MSI
+# Implémentation du Protocole (E/M)SI
 
 Le protocole **MSI (Modified, Shared, Invalid)** est un protocole de cohérence de cache utilisé dans les systèmes multiprocesseurs pour assurer la consistance des données entre les caches.
 
