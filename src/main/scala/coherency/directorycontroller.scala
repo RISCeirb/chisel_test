@@ -23,20 +23,14 @@ class DirectoryController(p : MilkParams, cacheSize: Int, lineSize: Int, nCache:
   def addrWidth = p.nAddrBit
 
   // Paramètres mémoire/cache
-  def numSets     = nCache * cacheSize / lineSize           // Nombre de blocs dans le cache
+  def numSetsDir  = nCache * cacheSize / lineSize
+  def numSets     = cacheSize / lineSize                    // Nombre de blocs dans le cache
   def indexWidth  = log2Ceil(numSets)                       // Bits nécessaires pour l'index
   def offsetWidth = log2Ceil(lineSize / (addrWidth/8))      // Bits pour l'offset
   def tagWidth    = addrWidth - indexWidth - offsetWidth    // Bits pour le tag
   def nblock      = nCache                                  // Nombre de caches
 
   // Annuaire pour la cohérence MSI : Vecteur de bits de présence (nblock) 
-
-  //val init_directory = Wire(Vec(numSets, new Directory_class(nblock)))
-  //for (s <- 0 until numSets) {
-  //  init_directory(s).presence := 0.U.asTypeOf(init_directory(s).presence)
-  //  init_directory(s).state    := State_MSI.s_invalid
-  //}
-  //val r_directory = RegInit(init_directory)
 
   val init_directory = Wire(Vec(numSets, new Directory_class(nblock,tagWidth)))
   for (s <- 0 until numSets) {
@@ -46,6 +40,8 @@ class DirectoryController(p : MilkParams, cacheSize: Int, lineSize: Int, nCache:
   }
 
   val r_directory = RegInit(init_directory)
+  // val r_ready     = RegInit(VecInit(Seq.fill(nCache)(false.B)))                
+  // val r_addr      = RegInit((0.U(addrWidth.W)))
 
   //////////////////////////// STALL UNIT ///////////////////////////
 
@@ -56,7 +52,7 @@ class DirectoryController(p : MilkParams, cacheSize: Int, lineSize: Int, nCache:
   for (i <- 0 until nCache) {
     // io.reqs(i).req_control.ready      := stall_unit.io.req_in(i).ready
     stall_unit.io.req_in(i).valid     := io.reqs(i).req_control.valid
-    stall_unit.io.req_in(i).bits.hart := io.reqs(i).req_control.hart
+    stall_unit.io.req_in(i).bits.hart := io.reqs(i).req_control.ctrl.hart
     stall_unit.io.req_in(i).bits.addr := io.reqs(i).req_control.ctrl.addr
     stall_unit.io.req_in(i).bits.op   := io.reqs(i).req_control.ctrl.op
   }
@@ -72,29 +68,6 @@ class DirectoryController(p : MilkParams, cacheSize: Int, lineSize: Int, nCache:
       arbiter.io.in(i) <>   stall_unit.io.req_out(i)
   }
 
-
-  //val bus_arbiter = Wire(Vec(nCache, new DecoupledIO(new Ctrl_arbiter(p))))
-//
-  //for (i <- 0 until nCache) {
-  //  io.reqs(i).req_control.ready  := bus_arbiter(i).ready
-  //  bus_arbiter(i).valid          := io.reqs(i).req_control.valid
-  //  bus_arbiter(i).bits.hart      := io.reqs(i).req_control.hart
-  //  bus_arbiter(i).bits.addr      := io.reqs(i).req_control.ctrl.addr
-  //  bus_arbiter(i).bits.op        := io.reqs(i).req_control.ctrl.op
-  //}
-//
-  //// Arbitre Round-Robin pour gérer les accès concurrents
-  //val arbiter = Module(new RRArbiter(Flipped(new Ctrl_arbiter(p)), nCache))
-//
-  //arbiter.io.out.ready := true.B
-//
-  //for (i <- 0 until nCache) {
-  ////  io.reqs(i).req_control.ready := arbiter.io.in(i).ready
-  ////  arbiter.io.in(i).valid       := io.reqs(i).req_control.valid
-  ////  arbiter.io.in(i).bits        <> io.reqs(i).req_control
-  //    arbiter.io.in(i) <> bus_arbiter(i)
-  //}
-
   // Requête sélectionnée
 
   val selectedReq   = arbiter.io.out.bits
@@ -107,6 +80,9 @@ class DirectoryController(p : MilkParams, cacheSize: Int, lineSize: Int, nCache:
   val w_index    = selectedAddr(indexWidth + offsetWidth - 1 + 2, offsetWidth + 2)
   val w_tag      = selectedAddr(addrWidth - 1, indexWidth + offsetWidth +2)
   val r_presence = r_directory(w_index).presence
+
+  dontTouch(w_index)
+  dontTouch(w_tag)
 
   /////////////////////////// CONTROL MSI //////////////////////////
 
@@ -149,7 +125,7 @@ class DirectoryController(p : MilkParams, cacheSize: Int, lineSize: Int, nCache:
           }
         }
         is(State_MSI.s_exclu)    {
-          // Not used 
+          // TO DO
         }
       }
     }.otherwise {
@@ -161,9 +137,9 @@ class DirectoryController(p : MilkParams, cacheSize: Int, lineSize: Int, nCache:
         r_presence(arbiter.io.chosen) := true.B
         r_directory(w_index).state := State_MSI.s_modified
       }.elsewhen(selectedOp === OpType.READ){
-        //for (i <- 0 until nCache) {
-        //  when(i.U =/= arbiter.io.chosen) { r_presence(i) := false.B }
-        //}
+        // for (i <- 0 until nCache) {
+        //   when(i.U =/= arbiter.io.chosen) { r_presence(i) := false.B }
+        // }
         r_presence(arbiter.io.chosen) := true.B
         r_directory(w_index).state := State_MSI.s_shared
       }
@@ -172,13 +148,13 @@ class DirectoryController(p : MilkParams, cacheSize: Int, lineSize: Int, nCache:
 
   //////////////////////// CACHE REP ///////////////////////////////
 
-  // val r_ready = RegInit(VecInit(Seq.fill(nCache)(false.B)))
+  //r_addr             := selectedAddr
 
   for (i <- 0 until nCache) {
     // r_ready(i) := arbiter.io.out.ready && (arbiter.io.chosen === i.U)
-    io.reqs(i).rep_state := Mux(r_directory(w_index).presence(i), r_directory(w_index).state, State_MSI.s_invalid)
+    io.reqs(i).rep_state         := Mux(r_directory(w_index).presence(i), r_directory(w_index).state, State_MSI.s_invalid) 
     io.reqs(i).req_control.ready := arbiter.io.out.ready && (arbiter.io.chosen === i.U)
-    // bus_arbiter(i).ready
+    io.reqs(i).addr              := selectedAddr
   }
 
 }
