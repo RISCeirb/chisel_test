@@ -59,7 +59,6 @@ Le protocole **MSI (Modified, Shared, Invalid)** est un protocole de cohérence 
 
 ![Schéma directory](./Screenshots/directory.drawio.jpg)
 
-
 ![Schéma directory](./Screenshots/cache_schéma.drawio.jpg)
 
 
