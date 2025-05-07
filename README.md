@@ -64,7 +64,9 @@ Le protocole **MSI (Modified, Shared, Invalid)** est un protocole de cohérence 
 
 ![Schéma cache](./Screenshots/cache_schéma.drawio.jpg)
 
+![Schéma directory](./Screenshots/multicore.jpg)
 
+![Schéma cache](./Screenshots/core.jpg)
 ## Signaux Nécessaires
 
 ### 1. Signaux de Requête (Envoyés par les caches au bus ou au contrôleur de mémoire)
