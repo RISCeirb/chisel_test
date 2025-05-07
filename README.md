@@ -58,7 +58,7 @@ Snooping protocols rely on a broadcast mechanism where all caches monitor (or "s
 Le protocole **MSI (Modified, Shared, Invalid)** est un protocole de cohérence de cache utilisé dans les systèmes multiprocesseurs pour assurer la consistance des données entre les caches.
 
 
-![Betizu core](./Screenshots/directory.betizu.png)
+![Betizu core](./Screenshots/betizu.png)
 
 ![Schéma directory](./Screenshots/directory.drawio(1).jpg)
 
